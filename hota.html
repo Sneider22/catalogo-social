@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo Social</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <!-- Login/Register Modal -->
+  <div id="login-modal" class="login-modal">
+    <form id="login-form" class="login-form">
+      <h2>Iniciar Sesión</h2>
+      <input type="text" id="login-usuario" placeholder="Usuario" required>
+      <input type="password" id="login-password" placeholder="Contraseña" required>
+      <button type="submit">Entrar</button>
+      <p id="login-error" class="login-error"></p>
+      <p class="login-register">¿No tienes cuenta? <a href="#" id="show-register">Regístrate</a></p>
+    </form>
+    <form id="register-form" class="login-form" style="display:none;">
+      <h2>Registro</h2>
+      <input type="text" id="register-usuario" placeholder="Usuario" required>
+      <input type="password" id="register-password" placeholder="Contraseña" required>
+      <button type="submit">Registrar</button>
+      <p id="register-error" class="login-error"></p>
+      <p class="login-register">¿Ya tienes cuenta? <a href="#" id="show-login">Inicia sesión</a></p>
+    </form>
+  </div>
+
+  <!-- Modal para agregar -->
+  <div id="add-modal" class="add-modal">
+    <form id="add-form" class="add-form">
+      <h2>Agregar a tu lista</h2>
+      <label>¿Qué quieres agregar?</label>
+      <select id="tipo-item" required>
+        <option value="">Selecciona una opción</option>
+        <option value="anime">Anime</option>
+        <option value="manga">Manga</option>
+        <option value="libro">Libro</option>
+        <option value="serie">Serie</option>
+        <option value="pelicula">Película</option>
+      </select>
+      <label>Título</label>
+      <input type="text" id="titulo-item" required placeholder="Título">
+      <div id="extras-container"></div>
+      <div class="add-form-actions">
+        <button type="submit">Agregar</button>
+        <button type="button" id="cancel-add">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Perfil y comparación -->
+  <div id="perfil-container" class="perfil-container">
+    <div class="perfil-info">
+      <h3>Perfil de <span id="perfil-usuario"></span></h3>
+      <button id="ver-mi-perfil" style="display:none;">Ver mi perfil</button>
+    </div>
+    <div class="perfil-selector">
+      <label for="usuario-selector">Ver perfil de:</label>
+      <select id="usuario-selector"></select>
+      <span id="coincidencia-gustos"></span>
+    </div>
+  </div>
+
+  <header>
+    <h1>Catálogo Social</h1>
+    <nav>
+      <ul>
+        <li class="activo" data-section="animes">Animes</li>
+        <li data-section="series">Series</li>
+        <li data-section="peliculas">Películas</li>
+        <li data-section="mangas">Mangas</li>
+        <li data-section="libros">Libros</li>
+      </ul>
+    </nav>
+  </header>
+  <main id="main-content">
+    <section id="animes" class="catalogo activo">
+      <h2>Animes</h2>
+      <div class="anime-list"></div>
+    </section>
+    <section id="series" class="catalogo">
+      <h2>Series</h2>
+      <div class="serie-list"></div>
+    </section>
+    <section id="peliculas" class="catalogo">
+      <h2>Películas</h2>
+      <div class="pelicula-list"></div>
+    </section>
+    <section id="mangas" class="catalogo">
+      <h2>Mangas</h2>
+      <div class="manga-list"></div>
+    </section>
+    <section id="libros" class="catalogo">
+      <h2>Libros</h2>
+      <div class="libro-list"></div>
+    </section>
+  </main>
+  <footer>
+    <p>Hecho con 💜 por [Tu Nombre]</p>
+  </footer>
+  <button id="add-item-btn" class="fab" title="Agregar a tu lista">＋</button>
+  <script src="main.js"></script>
+</body>
+</html>

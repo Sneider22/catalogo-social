@@ -1,0 +1,330 @@
+:root {
+  --color-principal: #6d28d9;
+  --color-secundario: #a78bfa;
+  --color-acento: #c026d3;
+  --color-fondo: #f3e8ff;
+  --color-card: #fff;
+  --color-visto: #9333ea;
+  --color-viendo: #f59e42;
+  --color-texto: #3b0764;
+  --sombra: 0 4px 16px rgba(109,40,217,0.08);
+  --borde-radius: 1rem;
+  --transicion: 0.3s cubic-bezier(.4,0,.2,1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: var(--color-principal);
+  color: #fff;
+  padding: 1.5rem 1rem 1rem 1rem;
+  box-shadow: var(--sombra);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+header h1 {
+  font-size: 2rem;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+nav ul {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  list-style: none;
+}
+
+nav li {
+  cursor: pointer;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  transition: background var(--transicion), color var(--transicion);
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+nav li.activo,
+nav li:hover {
+  background: var(--color-acento);
+  color: #fff;
+}
+
+main {
+  flex: 1;
+  padding: 2rem 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.catalogo {
+  display: none;
+  animation: fadeIn 0.7s;
+}
+
+.catalogo.activo {
+  display: block;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  color: var(--color-principal);
+  font-size: 1.7rem;
+  text-align: center;
+}
+
+.anime-list, .serie-list, .pelicula-list, .manga-list, .libro-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.anime-card, .serie-card, .pelicula-card, .manga-card, .libro-card {
+  background: var(--color-card);
+  border-radius: var(--borde-radius);
+  box-shadow: var(--sombra);
+  padding: 1.2rem 1rem;
+  transition: transform var(--transicion), box-shadow var(--transicion), background 0.2s;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border-left: 8px solid var(--color-secundario);
+  animation: slideUp 0.7s;
+}
+.anime-card.visto, .serie-card.visto, .pelicula-card.visto, .manga-card.visto, .libro-card.visto {
+  border-left: 8px solid var(--color-visto);
+}
+.anime-card.viendo, .serie-card.viendo, .pelicula-card.viendo, .manga-card.viendo, .libro-card.viendo {
+  border-left: 8px solid var(--color-viendo);
+}
+.anime-card:hover, .serie-card:hover, .pelicula-card:hover, .manga-card:hover, .libro-card:hover {
+  transform: translateY(-10px) scale(1.04);
+  box-shadow: 0 12px 40px rgba(109,40,217,0.18);
+  background: #ede9fe;
+}
+
+.anime-card h3, .serie-card h3, .pelicula-card h3, .manga-card h3, .libro-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-principal);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.anime-card h3 span, .serie-card h3 span, .pelicula-card h3 span, .manga-card h3 span, .libro-card h3 span {
+  font-size: 1rem;
+  color: var(--color-secundario);
+  font-weight: 400;
+}
+
+.anime-card p, .serie-card p, .pelicula-card p, .manga-card p, .libro-card p {
+  color: var(--color-secundario);
+  font-size: 1rem;
+}
+
+footer {
+  background: var(--color-principal);
+  color: #fff;
+  text-align: center;
+  padding: 1rem 0;
+  margin-top: 2rem;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+/* FAB (Floating Action Button) */
+.fab {
+  position: fixed;
+  bottom: 2.2rem;
+  right: 2.2rem;
+  width: 60px;
+  height: 60px;
+  background: var(--color-acento);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 2.5rem;
+  box-shadow: 0 8px 32px rgba(109,40,217,0.18);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fab:hover {
+  background: var(--color-principal);
+  transform: scale(1.12) rotate(10deg);
+  box-shadow: 0 12px 40px rgba(192,38,211,0.25);
+}
+
+/* Modal para agregar y login */
+.add-modal, .login-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(109,40,217,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.add-modal.active, .login-modal.active {
+  display: flex;
+  animation: fadeIn 0.4s;
+}
+.add-form, .login-form {
+  background: #fff;
+  padding: 2rem 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(109,40,217,0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 270px;
+  width: 100%;
+  max-width: 350px;
+  animation: slideUp 0.5s;
+}
+.add-form label, .login-form label {
+  font-weight: 500;
+  color: var(--color-principal);
+}
+.add-form input, .add-form select, .login-form input {
+  padding: 0.7rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-secundario);
+  font-size: 1rem;
+}
+.add-form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+.add-form button[type="submit"], .login-form button[type="submit"] {
+  background: var(--color-acento);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.add-form button[type="submit"]:hover, .login-form button[type="submit"]:hover {
+  background: var(--color-principal);
+}
+.add-form button[type="button"] {
+  background: #be185d;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.add-form button[type="button"]:hover {
+  background: #831843;
+}
+
+/* Login extra */
+.login-error {
+  color: #be185d;
+  font-size: 0.95rem;
+  min-height: 1.2em;
+  text-align: center;
+}
+.login-register {
+  font-size: 0.95rem;
+  text-align: center;
+}
+.login-register a {
+  color: var(--color-acento);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Perfil */
+.perfil-container {
+  background: #ede9fe;
+  border-radius: 1rem;
+  margin: 1.5rem auto 1rem auto;
+  padding: 1rem 1.5rem;
+  max-width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(109,40,217,0.08);
+}
+.perfil-info h3 {
+  margin: 0;
+  color: var(--color-principal);
+  font-size: 1.2rem;
+}
+.perfil-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+#usuario-selector {
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-acento);
+  font-size: 1rem;
+}
+#coincidencia-gustos {
+  font-weight: bold;
+  color: #a21caf;
+  font-size: 1rem;
+}
+#ver-mi-perfil {
+  background: var(--color-acento);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  header h1 { font-size: 1.3rem; }
+  nav ul { gap: 1rem; }
+  main { padding: 1rem 0.3rem; }
+  .anime-list, .serie-list, .pelicula-list, .manga-list, .libro-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .anime-card, .serie-card, .pelicula-card, .manga-card, .libro-card {
+    padding: 1rem 0.7rem;
+  }
+  .perfil-container { flex-direction: column; align-items: flex-start; }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
