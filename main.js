@@ -1,24 +1,5 @@
 // ================== DATOS BASE ==================
-const animes = [
-  { titulo: "Los caballeros del Zodiaco", anio: 1986, caps: "145 capítulos", estado: "visto" },
-  { titulo: "Dragon Ball Z", anio: 1989, caps: "261 capítulos", estado: "visto" },
-  { titulo: "Dragon Ball GT", anio: 1996, caps: "64 capítulos", estado: "visto" },
-  { titulo: "Neon Genesis Evangelion", anio: 1995, caps: "26 capítulos / 2 películas", estado: "visto" },
-  { titulo: "Cowboy Bebop", anio: 1998, caps: "26 capítulos", estado: "visto" },
-  { titulo: "Naruto", anio: 2002, caps: "220 capítulos", estado: "visto" },
-  { titulo: "Samurai Champloo", anio: 2004, caps: "26 capítulos", estado: "visto" },
-  { titulo: "Monster", anio: 2004, caps: "74 capítulos", estado: "visto" },
-  { titulo: "Bleach", anio: 2004, caps: "133 capítulos / ...", estado: "viendo" },
-  { titulo: "Avatar: La leyenda de Aang", anio: 2005, caps: "61 capítulos", estado: "visto" },
-  { titulo: "The Office", anio: 2005, caps: "201 capítulos", estado: "visto" },
-  { titulo: "Steins; Gate", anio: 2011, caps: "26 capítulos", estado: "visto" },
-  { titulo: "Avatar: La leyenda de Korra", anio: 2012, caps: "52 capítulos", estado: "visto" },
-  { titulo: "Terror in Resonance", anio: 2014, caps: "1/11 capítulos ...", estado: "viendo" },
-  { titulo: "Orange", anio: 2016, caps: "13 capítulos", estado: "visto" },
-  { titulo: "Steins; Gate 0", anio: 2018, caps: "23 capítulos", estado: "visto" },
-  { titulo: "Devilman Crybaby", anio: 2018, caps: "10 capítulos", estado: "visto" },
-  { titulo: "Dr. Stone", anio: 2019, caps: "57 capítulos / ...", estado: "viendo" }
-];
+const animes = []; // Ya no hay animes de ejemplo
 
 // ================== UTILIDADES LOGIN ==================
 function mostrarLogin(mostrar) {
@@ -107,6 +88,23 @@ function getSeccionActiva() {
   return activo ? activo.dataset.section : "animes";
 }
 
+// ================== GÉNEROS DE TMDB ==================
+let generosTMDB = {};
+const TMDB_API_KEY = "e7fc358f1fb84ae5a56fda2f30e11a30"; // Tu API Key
+
+function cargarGenerosTMDB() {
+  fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_API_KEY}&language=es-ES`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.genres) {
+        data.genres.forEach(g => {
+          generosTMDB[g.id] = g.name;
+        });
+      }
+    });
+}
+cargarGenerosTMDB();
+
 // ================== RENDERIZADO DE SECCIONES ==================
 function renderSeccion(seccion, usuario = usuarioPerfilActual) {
   const user = usuario;
@@ -139,10 +137,33 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
     userList.filter(item => item.tipo === "serie").forEach(serie => {
       const card = document.createElement('div');
       card.className = `serie-card ${serie.estado || ""}`;
+      let poster = serie.tmdb && serie.tmdb.poster_path
+        ? `<img src="https://image.tmdb.org/t/p/w200${serie.tmdb.poster_path}" alt="${serie.titulo}" style="width:90px;border-radius:8px;float:left;margin-right:10px;">`
+        : "";
+      let year = serie.tmdb && serie.tmdb.first_air_date
+        ? ` (${serie.tmdb.first_air_date.slice(0,4)})`
+        : "";
+      let overview = serie.tmdb && serie.tmdb.overview
+        ? `<p style="font-size:0.95em;color:#6d28d9;margin-top:0.5em;">${serie.tmdb.overview.length > 180 ? serie.tmdb.overview.slice(0,180) + "..." : serie.tmdb.overview}</p>`
+        : "";
+      let generos = "";
+      if (serie.tmdb && serie.tmdb.genre_ids && serie.tmdb.genre_ids.length) {
+        generos = serie.tmdb.genre_ids.map(id => {
+          const nombre = generosTMDB[id] || "Otro";
+          const clase = "genero-badge genero-" + nombre.replace(/ /g, "\\ ");
+          return `<span class="${clase}">${nombre}</span>`;
+        }).join('');
+      }
+      let actoresAuto = serie.tmdb && serie.tmdb.actores && serie.tmdb.actores.length
+        ? `<p><b>Actores:</b> ${serie.tmdb.actores.join(", ")}</p>`
+        : "";
       card.innerHTML = `
-        <h3>${serie.titulo}</h3>
-        <p>${serie.caps || ""}</p>
-        ${serie.actores ? `<p><b>Actores:</b> ${serie.actores}</p>` : ""}
+        ${poster}
+        <h3>${serie.titulo || (serie.tmdb && serie.tmdb.name) || ""}${year}</h3>
+        ${generos ? `<div style="margin-bottom:0.3em;">${generos}</div>` : ""}
+        ${actoresAuto}
+        ${overview}
+        <div style="clear:both"></div>
       `;
       document.querySelector('.serie-list').appendChild(card);
     });
@@ -151,9 +172,33 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
     userList.filter(item => item.tipo === "pelicula").forEach(pelicula => {
       const card = document.createElement('div');
       card.className = `pelicula-card ${pelicula.estado || ""}`;
+      let poster = pelicula.tmdb && pelicula.tmdb.poster_path
+        ? `<img src="https://image.tmdb.org/t/p/w200${pelicula.tmdb.poster_path}" alt="${pelicula.titulo}" style="width:90px;border-radius:8px;float:left;margin-right:10px;">`
+        : "";
+      let year = pelicula.tmdb && pelicula.tmdb.release_date
+        ? ` (${pelicula.tmdb.release_date.slice(0,4)})`
+        : "";
+      let overview = pelicula.tmdb && pelicula.tmdb.overview
+        ? `<p style="font-size:0.95em;color:#6d28d9;margin-top:0.5em;">${pelicula.tmdb.overview.length > 180 ? pelicula.tmdb.overview.slice(0,180) + "..." : pelicula.tmdb.overview}</p>`
+        : "";
+      let generos = "";
+      if (pelicula.tmdb && pelicula.tmdb.genre_ids && pelicula.tmdb.genre_ids.length) {
+        generos = pelicula.tmdb.genre_ids.map(id => {
+          const nombre = generosTMDB[id] || "Otro";
+          const clase = "genero-badge genero-" + nombre.replace(/ /g, "\\ ");
+          return `<span class="${clase}">${nombre}</span>`;
+        }).join('');
+      }
+      let actoresAuto = pelicula.tmdb && pelicula.tmdb.actores && pelicula.tmdb.actores.length
+        ? `<p><b>Actores:</b> ${pelicula.tmdb.actores.join(", ")}</p>`
+        : "";
       card.innerHTML = `
-        <h3>${pelicula.titulo}</h3>
-        ${pelicula.actores ? `<p><b>Actores:</b> ${pelicula.actores}</p>` : ""}
+        ${poster}
+        <h3>${pelicula.titulo}${year}</h3>
+        ${generos ? `<div style="margin-bottom:0.3em;">${generos}</div>` : ""}
+        ${actoresAuto}
+        ${overview}
+        <div style="clear:both"></div>
       `;
       document.querySelector('.pelicula-list').appendChild(card);
     });
@@ -174,10 +219,20 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
     userList.filter(item => item.tipo === "libro").forEach(libro => {
       const card = document.createElement('div');
       card.className = `libro-card ${libro.estado || ""}`;
+      let portada = libro.ol && libro.ol.cover
+        ? `<img src="${libro.ol.cover}" alt="${libro.titulo}" style="width:70px;border-radius:8px;float:left;margin-right:10px;">`
+        : "";
+      let autor = libro.ol && libro.ol.author
+        ? `<p><b>Autor:</b> ${libro.ol.author}</p>`
+        : "";
+      let year = libro.ol && libro.ol.year
+        ? ` (${libro.ol.year})`
+        : "";
       card.innerHTML = `
-        <h3>${libro.titulo}</h3>
-        ${libro.autor ? `<p><b>Autor:</b> ${libro.autor}</p>` : ""}
-        ${libro.caps ? `<p><b>Capítulos:</b> ${libro.caps}</p>` : ""}
+        ${portada}
+        <h3>${libro.titulo}${year}</h3>
+        ${autor}
+        <div style="clear:both"></div>
       `;
       document.querySelector('.libro-list').appendChild(card);
     });
@@ -288,18 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   tipoItem.onchange = () => {
     extrasContainer.innerHTML = '';
-    if (!tipoItem.value) return;
-    const extraLabel = document.createElement('label');
-    extraLabel.textContent = "¿Quieres agregar información extra?";
-    extrasContainer.appendChild(extraLabel);
-    if (["anime", "manga", "serie", "libro"].includes(tipoItem.value)) {
-      const capsInput = document.createElement('input');
-      capsInput.type = "number";
-      capsInput.min = "1";
-      capsInput.placeholder = "Cantidad de capítulos/episodios";
-      capsInput.id = "extra-caps";
-      extrasContainer.appendChild(capsInput);
-    }
+    // Solo muestra el input de actores para películas y series
     if (["pelicula", "serie"].includes(tipoItem.value)) {
       const actoresInput = document.createElement('input');
       actoresInput.type = "text";
@@ -307,14 +351,121 @@ document.addEventListener('DOMContentLoaded', () => {
       actoresInput.id = "extra-actores";
       extrasContainer.appendChild(actoresInput);
     }
-    if (tipoItem.value === "libro") {
-      const autorInput = document.createElement('input');
-      autorInput.type = "text";
-      autorInput.placeholder = "Autor (opcional)";
-      autorInput.id = "extra-autor";
-      extrasContainer.appendChild(autorInput);
-    }
   };
+
+  // TMDB Autocompletado para películas
+  const tituloInput = document.getElementById('titulo-item');
+  const datalistPeliculas = document.getElementById('tmdb-peliculas-list');
+  const datalistLibros = document.getElementById('libros-list');
+  const datalistSeries = document.getElementById('tmdb-series-list');
+  let ultimaPeliculaTMDB = null;
+  let ultimoLibroOL = null;
+  let actoresTMDB = [];
+  let ultimaSerieTMDB = null;
+  let actoresSerieTMDB = [];
+
+  // Cambia el datalist según el tipo seleccionado
+  tipoItem.addEventListener('change', () => {
+    if (tipoItem.value === "serie") {
+      tituloInput.setAttribute('list', 'tmdb-series-list');
+    } else if (tipoItem.value === "pelicula") {
+      tituloInput.setAttribute('list', 'tmdb-peliculas-list');
+    } else if (tipoItem.value === "libro") {
+      tituloInput.setAttribute('list', 'libros-list');
+    } else {
+      tituloInput.removeAttribute('list');
+      datalistSeries.innerHTML = '';
+      datalistPeliculas.innerHTML = '';
+      datalistLibros.innerHTML = '';
+    }
+  });
+
+  // Autocompletado de libros con Open Library
+  tituloInput.addEventListener('input', function() {
+    if (tipoItem.value !== "libro") return;
+    const query = this.value.trim();
+    if (query.length < 2) {
+      datalistLibros.innerHTML = '';
+      ultimoLibroOL = null;
+      return;
+    }
+    fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(query)}&limit=10`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.docs) return;
+        datalistLibros.innerHTML = data.docs
+          .slice(0, 10)
+          .map(b => `<option value="${b.title}${b.author_name ? ' - ' + b.author_name[0] : ''}">`)
+          .join('');
+        tituloInput.dataset.olResults = JSON.stringify(data.docs.slice(0, 10));
+      });
+  });
+
+  // Autocompletado de series con TMDB
+  tituloInput.addEventListener('input', function() {
+    if (tipoItem.value !== "serie") return;
+    const query = this.value.trim();
+    if (query.length < 2) {
+      datalistSeries.innerHTML = '';
+      ultimaSerieTMDB = null;
+      return;
+    }
+    fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&language=es-ES&query=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.results) return;
+        datalistSeries.innerHTML = data.results
+          .slice(0, 10)
+          .map(s => `<option value="${s.name}">`)
+          .join('');
+        tituloInput.dataset.tmdbSeriesResults = JSON.stringify(data.results.slice(0, 10));
+      });
+  });
+
+  // Cuando el usuario sale del input, busca el objeto seleccionado y obtiene actores
+  tituloInput.addEventListener('change', function() {
+    if (tipoItem.value !== "pelicula") return;
+    const results = JSON.parse(tituloInput.dataset.tmdbResults || "[]");
+    const peli = results.find(p => p.title === tituloInput.value);
+    ultimaPeliculaTMDB = peli || null;
+    actoresTMDB = [];
+    if (peli) {
+      fetch(`https://api.themoviedb.org/3/movie/${peli.id}/credits?api_key=${TMDB_API_KEY}&language=es-ES`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.cast) {
+            actoresTMDB = data.cast.slice(0, 3).map(a => a.name);
+          }
+        });
+    }
+  });
+
+  // Cuando el usuario selecciona una serie, guarda el objeto y busca actores
+  tituloInput.addEventListener('change', function() {
+    if (tipoItem.value !== "serie") return;
+    const results = JSON.parse(tituloInput.dataset.tmdbSeriesResults || "[]");
+    const serie = results.find(s => s.name === tituloInput.value);
+    ultimaSerieTMDB = serie || null;
+    actoresSerieTMDB = [];
+    if (serie) {
+      fetch(`https://api.themoviedb.org/3/tv/${serie.id}/credits?api_key=${TMDB_API_KEY}&language=es-ES`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.cast) {
+            actoresSerieTMDB = data.cast.slice(0, 3).map(a => a.name);
+          }
+        });
+    }
+  });
+
+  // Guarda el libro seleccionado
+  tituloInput.addEventListener('change', function() {
+    if (tipoItem.value !== "libro") return;
+    const results = JSON.parse(tituloInput.dataset.olResults || "[]");
+    const libro = results.find(b => this.value.startsWith(b.title));
+    ultimoLibroOL = libro || null;
+  });
+
   addForm.onsubmit = function(e) {
     e.preventDefault();
     const tipo = tipoItem.value;
@@ -332,6 +483,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('extra-autor')) {
       nuevo.autor = document.getElementById('extra-autor').value;
     }
+    // Si es película y hay datos TMDB, guarda info extra y actores
+    if (tipo === "pelicula" && ultimaPeliculaTMDB) {
+      nuevo.tmdb = {
+        id: ultimaPeliculaTMDB.id,
+        title: ultimaPeliculaTMDB.title,
+        original_title: ultimaPeliculaTMDB.original_title,
+        release_date: ultimaPeliculaTMDB.release_date,
+        overview: ultimaPeliculaTMDB.overview,
+        poster_path: ultimaPeliculaTMDB.poster_path,
+        genre_ids: ultimaPeliculaTMDB.genre_ids,
+        actores: actoresTMDB
+      };
+    }
+    // Si es libro y hay datos de Open Library, guarda info extra
+    if (tipo === "libro" && ultimoLibroOL) {
+      nuevo.ol = {
+        title: ultimoLibroOL.title,
+        author: ultimoLibroOL.author_name ? ultimoLibroOL.author_name[0] : "",
+        year: ultimoLibroOL.first_publish_year,
+        cover: ultimoLibroOL.cover_i
+          ? `https://covers.openlibrary.org/b/id/${ultimoLibroOL.cover_i}-M.jpg`
+          : ""
+      };
+    }
+    // Si es serie y hay datos TMDB, guarda info extra y actores
+    if (tipo === "serie" && ultimaSerieTMDB) {
+      nuevo.tmdb = {
+        id: ultimaSerieTMDB.id,
+        name: ultimaSerieTMDB.name,
+        original_name: ultimaSerieTMDB.original_name,
+        first_air_date: ultimaSerieTMDB.first_air_date,
+        overview: ultimaSerieTMDB.overview,
+        poster_path: ultimaSerieTMDB.poster_path,
+        genre_ids: ultimaSerieTMDB.genre_ids,
+        actores: actoresSerieTMDB
+      };
+    }
     const user = usuarioActual();
     let listas = JSON.parse(localStorage.getItem('listas') || '{}');
     if (!listas[user]) listas[user] = [];
@@ -339,5 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('listas', JSON.stringify(listas));
     addModal.classList.remove('active');
     renderSeccion(getSeccionActiva(), usuarioPerfilActual);
+    ultimaPeliculaTMDB = null; // Limpia para el siguiente uso
+    actoresTMDB = [];
   };
 });

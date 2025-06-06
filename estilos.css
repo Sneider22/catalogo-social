@@ -116,6 +116,7 @@ h2 {
   min-width: 0;
   word-break: break-word;
 }
+
 .anime-card.visto, .serie-card.visto, .pelicula-card.visto, .manga-card.visto, .libro-card.visto {
   border-left: 6px solid var(--color-visto);
 }
@@ -318,6 +319,39 @@ footer {
   cursor: pointer;
   margin-left: 0.5rem;
 }
+
+/* Etiquetas de género de película */
+.genero-badge {
+  display: inline-block;
+  padding: 0.18em 0.7em;
+  border-radius: 999px;
+  font-size: 0.92em;
+  font-weight: 600;
+  margin: 0 0.2em 0.2em 0;
+  color: #fff;
+  background: #a78bfa;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(109,40,217,0.08);
+}
+.genero-Acción { background: #f43f5e; }
+.genero-Aventura { background: #f59e42; }
+.genero-Animación { background: #fbbf24; color: #3b0764; }
+.genero-Comedia { background: #22d3ee; color: #3b0764; }
+.genero-Crimen { background: #6366f1; }
+.genero-Documental { background: #14b8a6; }
+.genero-Drama { background: #a21caf; }
+.genero-Familia { background: #f472b6; color: #3b0764; }
+.genero-Fantasía { background: #8b5cf6; }
+.genero-Historia { background: #facc15; color: #3b0764; }
+.genero-Terror { background: #be185d; }
+.genero-Música { background: #06b6d4; }
+.genero-Misterio { background: #64748b; }
+.genero-Romance { background: #f472b6; color: #3b0764; }
+.genero-Ciencia\ ficción { background: #0ea5e9; }
+.genero-Película\ de\ TV { background: #a3e635; color: #3b0764; }
+.genero-Thriller { background: #ea580c; }
+.genero-Bélica { background: #475569; }
+.genero-Western { background: #fbbf24; color: #3b0764; }
 
 /* Responsive: Mobile First */
 @media (min-width: 600px) {

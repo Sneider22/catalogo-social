@@ -41,7 +41,10 @@
         <option value="pelicula">Película</option>
       </select>
       <label>Título</label>
-      <input type="text" id="titulo-item" required placeholder="Título">
+      <input type="text" id="titulo-item" required placeholder="Título" list="tmdb-peliculas-list">
+      <datalist id="tmdb-peliculas-list"></datalist>
+      <datalist id="tmdb-series-list"></datalist>
+      <datalist id="libros-list"></datalist>
       <div id="extras-container"></div>
       <div class="add-form-actions">
         <button type="submit">Agregar</button>
@@ -98,7 +101,7 @@
     </section>
   </main>
   <footer>
-    <p>Hecho con 💜 por [Tu Nombre]</p>
+    <p>Hecho con 💜 por Sneider</p>
   </footer>
   <button id="add-item-btn" class="fab" title="Agregar a tu lista">＋</button>
   <script src="main.js"></script>
