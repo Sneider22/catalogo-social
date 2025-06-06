@@ -41,10 +41,8 @@
         <option value="pelicula">Película</option>
       </select>
       <label>Título</label>
-      <input type="text" id="titulo-item" required placeholder="Título" list="tmdb-peliculas-list">
-      <datalist id="tmdb-peliculas-list"></datalist>
-      <datalist id="tmdb-series-list"></datalist>
-      <datalist id="libros-list"></datalist>
+      <input type="text" id="titulo-item" required placeholder="Título">
+      <div id="autocomplete-menu" class="autocomplete-menu"></div>
       <div id="extras-container"></div>
       <div class="add-form-actions">
         <button type="submit">Agregar</button>

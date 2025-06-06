@@ -353,6 +353,28 @@ footer {
 .genero-Bélica { background: #475569; }
 .genero-Western { background: #fbbf24; color: #3b0764; }
 
+/* Autocompletado */
+.autocomplete-menu {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #a78bfa;
+  border-radius: 8px;
+  z-index: 1000;
+  width: 90%;
+  max-width: 350px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(109,40,217,0.08);
+  display: none;
+}
+.autocomplete-menu div {
+  padding: 0.7em 1em;
+  cursor: pointer;
+}
+.autocomplete-menu div:hover {
+  background: #ede9fe;
+}
+
 /* Responsive: Mobile First */
 @media (min-width: 600px) {
   header h1 { font-size: 2rem; }

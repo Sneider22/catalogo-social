@@ -343,17 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   tipoItem.onchange = () => {
     extrasContainer.innerHTML = '';
-    // Solo muestra el input de actores para películas y series
-    if (["pelicula", "serie"].includes(tipoItem.value)) {
-      const actoresInput = document.createElement('input');
-      actoresInput.type = "text";
-      actoresInput.placeholder = "Actores favoritos (opcional)";
-      actoresInput.id = "extra-actores";
-      extrasContainer.appendChild(actoresInput);
-    }
   };
 
-  // TMDB Autocompletado para películas
+  // --- Variables de autocompletado ---
   const tituloInput = document.getElementById('titulo-item');
   const datalistPeliculas = document.getElementById('tmdb-peliculas-list');
   const datalistLibros = document.getElementById('libros-list');
@@ -380,7 +372,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Autocompletado de libros con Open Library
+  // --- Extra inputs solo para actores en películas y series ---
+  tipoItem.onchange = () => {
+    extrasContainer.innerHTML = '';
+    if (["pelicula", "serie"].includes(tipoItem.value)) {
+      const actoresInput = document.createElement('input');
+      actoresInput.type = "text";
+      actoresInput.placeholder = "Actores favoritos (opcional)";
+      actoresInput.id = "extra-actores";
+      extrasContainer.appendChild(actoresInput);
+    }
+  };
+
+  // --- Autocompletado de libros con Open Library ---
   tituloInput.addEventListener('input', function() {
     if (tipoItem.value !== "libro") return;
     const query = this.value.trim();
@@ -395,13 +399,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data.docs) return;
         datalistLibros.innerHTML = data.docs
           .slice(0, 10)
-          .map(b => `<option value="${b.title}${b.author_name ? ' - ' + b.author_name[0] : ''}">`)
+          .map(b => `<option value="${b.title}">`)
           .join('');
         tituloInput.dataset.olResults = JSON.stringify(data.docs.slice(0, 10));
       });
   });
 
-  // Autocompletado de series con TMDB
+  // --- Autocompletado de series con TMDB ---
   tituloInput.addEventListener('input', function() {
     if (tipoItem.value !== "serie") return;
     const query = this.value.trim();
@@ -422,7 +426,30 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   });
 
-  // Cuando el usuario sale del input, busca el objeto seleccionado y obtiene actores
+  // --- Autocompletado de películas con TMDB ---
+  tituloInput.addEventListener('input', function() {
+    if (tipoItem.value !== "pelicula") return;
+    const query = this.value.trim();
+    if (query.length < 2) {
+      datalistPeliculas.innerHTML = '';
+      ultimaPeliculaTMDB = null;
+      return;
+    }
+    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=es-ES&query=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.results) return;
+        datalistPeliculas.innerHTML = data.results
+          .slice(0, 10)
+          .map(p => `<option value="${p.title}">`)
+          .join('');
+        tituloInput.dataset.tmdbResults = JSON.stringify(data.results.slice(0, 10));
+      });
+  });
+
+  // --- Selección y guardado de datos extra ---
+
+  // Películas: guarda objeto y actores
   tituloInput.addEventListener('change', function() {
     if (tipoItem.value !== "pelicula") return;
     const results = JSON.parse(tituloInput.dataset.tmdbResults || "[]");
@@ -440,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Cuando el usuario selecciona una serie, guarda el objeto y busca actores
+  // Series: guarda objeto y actores
   tituloInput.addEventListener('change', function() {
     if (tipoItem.value !== "serie") return;
     const results = JSON.parse(tituloInput.dataset.tmdbSeriesResults || "[]");
@@ -458,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Guarda el libro seleccionado
+  // Libros: guarda objeto Open Library
   tituloInput.addEventListener('change', function() {
     if (tipoItem.value !== "libro") return;
     const results = JSON.parse(tituloInput.dataset.olResults || "[]");
@@ -466,22 +493,15 @@ document.addEventListener('DOMContentLoaded', () => {
     ultimoLibroOL = libro || null;
   });
 
+  // --- Guardar el ítem al enviar el formulario ---
   addForm.onsubmit = function(e) {
     e.preventDefault();
     const tipo = tipoItem.value;
     const titulo = document.getElementById('titulo-item').value.trim();
     if (!tipo || !titulo) return;
     let nuevo = { titulo, tipo, estado: "visto" };
-    if (document.getElementById('extra-caps')) {
-      nuevo.caps = document.getElementById('extra-caps').value
-        ? document.getElementById('extra-caps').value + " capítulos"
-        : undefined;
-    }
     if (document.getElementById('extra-actores')) {
       nuevo.actores = document.getElementById('extra-actores').value;
-    }
-    if (document.getElementById('extra-autor')) {
-      nuevo.autor = document.getElementById('extra-autor').value;
     }
     // Si es película y hay datos TMDB, guarda info extra y actores
     if (tipo === "pelicula" && ultimaPeliculaTMDB) {
@@ -496,11 +516,10 @@ document.addEventListener('DOMContentLoaded', () => {
         actores: actoresTMDB
       };
     }
-    // Si es libro y hay datos de Open Library, guarda info extra
+    // Si es libro y hay datos de Open Library, guarda info extra (sin autor)
     if (tipo === "libro" && ultimoLibroOL) {
       nuevo.ol = {
         title: ultimoLibroOL.title,
-        author: ultimoLibroOL.author_name ? ultimoLibroOL.author_name[0] : "",
         year: ultimoLibroOL.first_publish_year,
         cover: ultimoLibroOL.cover_i
           ? `https://covers.openlibrary.org/b/id/${ultimoLibroOL.cover_i}-M.jpg`
@@ -527,7 +546,78 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('listas', JSON.stringify(listas));
     addModal.classList.remove('active');
     renderSeccion(getSeccionActiva(), usuarioPerfilActual);
-    ultimaPeliculaTMDB = null; // Limpia para el siguiente uso
+    ultimaPeliculaTMDB = null;
     actoresTMDB = [];
+    ultimaSerieTMDB = null;
+    actoresSerieTMDB = [];
+    ultimoLibroOL = null;
   };
-});
+
+  const autocompleteMenu = document.getElementById('autocomplete-menu');
+
+  tituloInput.addEventListener('input', function() {
+    let tipo = tipoItem.value;
+    const query = this.value.trim();
+    autocompleteMenu.innerHTML = '';
+    autocompleteMenu.style.display = "none";
+    if (query.length < 2) return;
+
+    // --- Películas ---
+    if (tipo === "pelicula") {
+      fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=es-ES&query=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.results || !data.results.length) return;
+          autocompleteMenu.innerHTML = data.results.slice(0, 10).map(p =>
+            `<div data-title="${p.title}">${p.title} ${p.release_date ? '(' + p.release_date.slice(0,4) + ')' : ''}</div>`
+          ).join('');
+          autocompleteMenu.style.display = "block";
+          tituloInput.dataset.tmdbResults = JSON.stringify(data.results.slice(0, 10));
+        });
+    }
+
+    // --- Series ---
+    else if (tipo === "serie") {
+      fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&language=es-ES&query=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.results || !data.results.length) return;
+          autocompleteMenu.innerHTML = data.results.slice(0, 10).map(s =>
+            `<div data-title="${s.name}">${s.name} ${s.first_air_date ? '(' + s.first_air_date.slice(0,4) + ')' : ''}</div>`
+          ).join('');
+          autocompleteMenu.style.display = "block";
+          tituloInput.dataset.tmdbSeriesResults = JSON.stringify(data.results.slice(0, 10));
+        });
+    }
+
+    // --- Libros ---
+    else if (tipo === "libro") {
+      fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(query)}&limit=10`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.docs || !data.docs.length) return;
+          autocompleteMenu.innerHTML = data.docs.slice(0, 10).map(b =>
+            `<div data-title="${b.title}">${b.title}${b.author_name ? ' - ' + b.author_name[0] : ''}</div>`
+          ).join('');
+          autocompleteMenu.style.display = "block";
+          tituloInput.dataset.olResults = JSON.stringify(data.docs.slice(0, 10));
+        });
+    }
+  });
+          autocompleteMenu.innerHTML = data.docs.slice(0, 10).map(b =>
+            `<div data-title="${b.title}">${b.title}${b.author_name ? ' - ' + b.author_name[0] : ''}</div>`
+          ).join('');dEventListener('click', function(e) {
+          autocompleteMenu.style.display = "block";
+          tituloInput.dataset.olResults = JSON.stringify(data.docs.slice(0, 10));
+        });ompleteMenu.style.display = "none";
+    } tituloInput.dispatchEvent(new Event('change'));
+  });
+  });
+  // Al hacer click en una opción del menú
+  autocompleteMenu.addEventListener('click', function(e) {
+    if (e.target && e.target.dataset.title) {(e) {
+      tituloInput.value = e.target.dataset.title;.target !== tituloInput) {
+      autocompleteMenu.style.display = "none";
+      tituloInput.dispatchEvent(new Event('change'));
+    }
+  });  // Oculta el menú si se hace click fuera  document.addEventListener('click', function(e) {    if (!autocompleteMenu.contains(e.target) && e.target !== tituloInput) {      autocompleteMenu.style.display = "none";    }  });});
