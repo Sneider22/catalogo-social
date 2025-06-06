@@ -520,6 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tipo === "libro" && ultimoLibroOL) {
       nuevo.ol = {
         title: ultimoLibroOL.title,
+        author: ultimoLibroOL.author_name ? ultimoLibroOL.author_name[0] : "",
         year: ultimoLibroOL.first_publish_year,
         cover: ultimoLibroOL.cover_i
           ? `https://covers.openlibrary.org/b/id/${ultimoLibroOL.cover_i}-M.jpg`
@@ -604,20 +605,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
   });
-          autocompleteMenu.innerHTML = data.docs.slice(0, 10).map(b =>
-            `<div data-title="${b.title}">${b.title}${b.author_name ? ' - ' + b.author_name[0] : ''}</div>`
-          ).join('');dEventListener('click', function(e) {
-          autocompleteMenu.style.display = "block";
-          tituloInput.dataset.olResults = JSON.stringify(data.docs.slice(0, 10));
-        });ompleteMenu.style.display = "none";
-    } tituloInput.dispatchEvent(new Event('change'));
-  });
-  });
+
   // Al hacer click en una opción del menú
   autocompleteMenu.addEventListener('click', function(e) {
-    if (e.target && e.target.dataset.title) {(e) {
-      tituloInput.value = e.target.dataset.title;.target !== tituloInput) {
+    if (e.target && e.target.dataset.title) {
+      tituloInput.value = e.target.dataset.title;
       autocompleteMenu.style.display = "none";
       tituloInput.dispatchEvent(new Event('change'));
     }
-  });  // Oculta el menú si se hace click fuera  document.addEventListener('click', function(e) {    if (!autocompleteMenu.contains(e.target) && e.target !== tituloInput) {      autocompleteMenu.style.display = "none";    }  });});
+  });
+
+  // Oculta el menú si se hace click fuera
+  document.addEventListener('click', function(e) {
+    if (!autocompleteMenu.contains(e.target) && e.target !== tituloInput) {
+      autocompleteMenu.style.display = "none";
+    }
+  });
+});
