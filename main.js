@@ -165,7 +165,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         ? `<p><b>Actores:</b> ${serie.tmdb.actores.join(", ")}</p>`
         : "";
       card.innerHTML = `
-        <button class="eliminar-btn" data-tipo="serie" data-titulo="${serie.titulo}" title="Eliminar">🗑️</button>
+        <button class="eliminar-btn" data-tipo="serie" data-titulo="${serie.titulo}" data-ano="${serie.tmdb && serie.tmdb.first_air_date ? serie.tmdb.first_air_date.slice(0,4) : ''}" title="Eliminar">🗑️</button>
         ${poster}
         <h3>${serie.titulo || (serie.tmdb && serie.tmdb.name) || ""}${year}</h3>
         ${generos ? `<div style="margin-bottom:0.3em;">${generos}</div>` : ""}
@@ -201,7 +201,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         ? `<p><b>Actores:</b> ${pelicula.tmdb.actores.join(", ")}</p>`
         : "";
       card.innerHTML = `
-        <button class="eliminar-btn" data-tipo="pelicula" data-titulo="${pelicula.titulo}" title="Eliminar">🗑️</button>
+        <button class="eliminar-btn" data-tipo="pelicula" data-titulo="${pelicula.titulo}" data-ano="${pelicula.tmdb && pelicula.tmdb.release_date ? pelicula.tmdb.release_date.slice(0,4) : ''}" title="Eliminar">🗑️</button>
         ${poster}
         <h3>${pelicula.titulo}${year}</h3>
         ${generos ? `<div style="margin-bottom:0.3em;">${generos}</div>` : ""}
@@ -226,7 +226,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         ? ` (${libro.ol.year})`
         : "";
       card.innerHTML = `
-        <button class="eliminar-btn" data-tipo="libro" data-titulo="${libro.titulo}" title="Eliminar">🗑️</button>
+        <button class="eliminar-btn" data-tipo="libro" data-titulo="${libro.titulo}" data-ano="${libro.ol && libro.ol.year ? libro.ol.year : ''}" title="Eliminar">🗑️</button>
         ${portada}
         <h3>${libro.titulo}${year}</h3>
         ${autor}
@@ -248,9 +248,31 @@ function asignarEventosEliminar() {
       const user = usuarioPerfilActual;
       let listas = JSON.parse(localStorage.getItem('listas') || '{}');
       if (!listas[user]) return;
-      listas[user] = listas[user].filter(item =>
-        !(item.tipo === tipo && item.titulo === titulo)
-      );
+
+      listas[user] = listas[user].filter(item => {
+        if (item.tipo !== tipo) return true;
+        if (item.titulo !== titulo) return true;
+
+        // Películas: compara también el año
+        if (tipo === "pelicula" && item.tmdb && item.tmdb.release_date) {
+          // Busca el año en el botón (puedes agregar data-ano en el botón)
+          const anoBtn = btn.dataset.ano;
+          return item.tmdb.release_date.slice(0, 4) !== anoBtn;
+        }
+        // Series: compara también el año
+        if (tipo === "serie" && item.tmdb && item.tmdb.first_air_date) {
+          const anoBtn = btn.dataset.ano;
+          return item.tmdb.first_air_date.slice(0, 4) !== anoBtn;
+        }
+        // Libros: compara también el año
+        if (tipo === "libro" && item.ol && item.ol.year) {
+          const anoBtn = btn.dataset.ano;
+          return String(item.ol.year) !== String(anoBtn);
+        }
+        // Por defecto, elimina si coincide título y tipo
+        return false;
+      });
+
       localStorage.setItem('listas', JSON.stringify(listas));
       renderSeccion(getSeccionActiva(), usuarioPerfilActual);
     };
@@ -517,9 +539,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = usuarioActual();
     let listas = JSON.parse(localStorage.getItem('listas') || '{}');
     if (!listas[user]) listas[user] = [];
-    const yaExiste = listas[user].some(item =>
-      item.tipo === tipo && item.titulo.trim().toLowerCase() === titulo.toLowerCase()
-    );
+    const yaExiste = listas[user].some(item => {
+      if (item.tipo !== tipo) return false;
+      // Películas: compara título y año
+      if (tipo === "pelicula" && item.tmdb && ultimaPeliculaTMDB) {
+        return (
+          item.titulo.trim().toLowerCase() === titulo.toLowerCase() &&
+          item.tmdb.release_date &&
+          ultimaPeliculaTMDB.release_date &&
+          item.tmdb.release_date.slice(0, 4) === ultimaPeliculaTMDB.release_date.slice(0, 4)
+        );
+      }
+      // Series: compara título y año
+      if (tipo === "serie" && item.tmdb && ultimaSerieTMDB) {
+        return (
+          item.titulo.trim().toLowerCase() === titulo.toLowerCase() &&
+          item.tmdb.first_air_date &&
+          ultimaSerieTMDB.first_air_date &&
+          item.tmdb.first_air_date.slice(0, 4) === ultimaSerieTMDB.first_air_date.slice(0, 4)
+        );
+      }
+      // Libros: compara título y año si existe
+      if (tipo === "libro" && item.ol && ultimoLibroOL) {
+        return (
+          item.titulo.trim().toLowerCase() === titulo.toLowerCase() &&
+          item.ol.year &&
+          ultimoLibroOL.first_publish_year &&
+          item.ol.year === ultimoLibroOL.first_publish_year
+        );
+      }
+      // Por defecto, solo compara título y tipo
+      return item.titulo.trim().toLowerCase() === titulo.toLowerCase();
+    });
     if (yaExiste) {
       alert("¡Este elemento ya está dentro de tu catálogo!");
       return;
