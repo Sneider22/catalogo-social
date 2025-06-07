@@ -34,10 +34,8 @@
       <label>¿Qué quieres agregar?</label>
       <select id="tipo-item" required>
         <option value="">Selecciona una opción</option>
-        <option value="anime">Anime</option>
-        <option value="manga">Manga</option>
+        <option value="serie">Serie/Anime</option>
         <option value="libro">Libro</option>
-        <option value="serie">Serie</option>
         <option value="pelicula">Película</option>
       </select>
       <label>Título</label>
@@ -68,30 +66,20 @@
     <h1>Catálogo Social</h1>
     <nav>
       <ul>
-        <li class="activo" data-section="animes">Animes</li>
-        <li data-section="series">Series</li>
+        <li class="activo" data-section="series">Series/Animes</li>
         <li data-section="peliculas">Películas</li>
-        <li data-section="mangas">Mangas</li>
         <li data-section="libros">Libros</li>
       </ul>
     </nav>
   </header>
   <main id="main-content">
-    <section id="animes" class="catalogo activo">
-      <h2>Animes</h2>
-      <div class="anime-list"></div>
-    </section>
-    <section id="series" class="catalogo">
-      <h2>Series</h2>
+    <section id="series" class="catalogo activo">
+      <h2>Series/Animes</h2>
       <div class="serie-list"></div>
     </section>
     <section id="peliculas" class="catalogo">
       <h2>Películas</h2>
       <div class="pelicula-list"></div>
-    </section>
-    <section id="mangas" class="catalogo">
-      <h2>Mangas</h2>
-      <div class="manga-list"></div>
     </section>
     <section id="libros" class="catalogo">
       <h2>Libros</h2>
