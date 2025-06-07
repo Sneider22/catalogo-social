@@ -110,12 +110,38 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
   const user = usuario;
   let listas = JSON.parse(localStorage.getItem('listas') || '{}');
   let userList = listas[user] || [];
+
+  // --- FILTRO DE BÚSQUEDA ---
+  const filtro = (document.getElementById('buscador')?.value || "").toLowerCase().trim();
+
+  // Limpia las listas
   document.querySelector('.serie-list').innerHTML = '';
   document.querySelector('.pelicula-list').innerHTML = '';
   document.querySelector('.libro-list').innerHTML = '';
 
+  // Función para saber si un ítem coincide con el filtro
+  function coincide(item) {
+    if (!filtro) return true;
+    // Título
+    if (item.titulo && item.titulo.toLowerCase().includes(filtro)) return true;
+    // Categoría/tipo
+    if (item.tipo && item.tipo.toLowerCase().includes(filtro)) return true;
+    // Actores (para series y películas)
+    if (item.tmdb && item.tmdb.actores && item.tmdb.actores.join(" ").toLowerCase().includes(filtro)) return true;
+    // Autor (para libros)
+    if (item.ol && item.ol.author && item.ol.author.toLowerCase().includes(filtro)) return true;
+    // Géneros (para películas y series)
+    if (item.tmdb && item.tmdb.genre_ids && Array.isArray(item.tmdb.genre_ids)) {
+      for (let id of item.tmdb.genre_ids) {
+        const nombreGenero = (generosTMDB[id] || "").toLowerCase();
+        if (nombreGenero.includes(filtro)) return true;
+      }
+    }
+    return false;
+  }
+
   if (seccion === "series") {
-    userList.filter(item => item.tipo === "serie").forEach(serie => {
+    userList.filter(item => item.tipo === "serie" && coincide(item)).forEach((serie, idx) => {
       const card = document.createElement('div');
       card.className = `serie-card ${serie.estado || ""}`;
       let poster = serie.tmdb && serie.tmdb.poster_path
@@ -139,6 +165,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         ? `<p><b>Actores:</b> ${serie.tmdb.actores.join(", ")}</p>`
         : "";
       card.innerHTML = `
+        <button class="eliminar-btn" data-tipo="serie" data-titulo="${serie.titulo}" title="Eliminar">🗑️</button>
         ${poster}
         <h3>${serie.titulo || (serie.tmdb && serie.tmdb.name) || ""}${year}</h3>
         ${generos ? `<div style="margin-bottom:0.3em;">${generos}</div>` : ""}
@@ -150,7 +177,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
     });
   }
   if (seccion === "peliculas") {
-    userList.filter(item => item.tipo === "pelicula").forEach(pelicula => {
+    userList.filter(item => item.tipo === "pelicula" && coincide(item)).forEach((pelicula, idx) => {
       const card = document.createElement('div');
       card.className = `pelicula-card ${pelicula.estado || ""}`;
       let poster = pelicula.tmdb && pelicula.tmdb.poster_path
@@ -174,6 +201,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         ? `<p><b>Actores:</b> ${pelicula.tmdb.actores.join(", ")}</p>`
         : "";
       card.innerHTML = `
+        <button class="eliminar-btn" data-tipo="pelicula" data-titulo="${pelicula.titulo}" title="Eliminar">🗑️</button>
         ${poster}
         <h3>${pelicula.titulo}${year}</h3>
         ${generos ? `<div style="margin-bottom:0.3em;">${generos}</div>` : ""}
@@ -185,7 +213,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
     });
   }
   if (seccion === "libros") {
-    userList.filter(item => item.tipo === "libro").forEach(libro => {
+    userList.filter(item => item.tipo === "libro" && coincide(item)).forEach((libro, idx) => {
       const card = document.createElement('div');
       card.className = `libro-card ${libro.estado || ""}`;
       let portada = libro.ol && libro.ol.cover
@@ -198,6 +226,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         ? ` (${libro.ol.year})`
         : "";
       card.innerHTML = `
+        <button class="eliminar-btn" data-tipo="libro" data-titulo="${libro.titulo}" title="Eliminar">🗑️</button>
         ${portada}
         <h3>${libro.titulo}${year}</h3>
         ${autor}
@@ -206,6 +235,26 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
       document.querySelector('.libro-list').appendChild(card);
     });
   }
+
+  asignarEventosEliminar();
+}
+
+function asignarEventosEliminar() {
+  document.querySelectorAll('.eliminar-btn').forEach(btn => {
+    btn.onclick = function() {
+      if (!confirm("¿Seguro que quieres eliminar este elemento de tu catálogo?")) return;
+      const tipo = btn.dataset.tipo;
+      const titulo = btn.dataset.titulo;
+      const user = usuarioPerfilActual;
+      let listas = JSON.parse(localStorage.getItem('listas') || '{}');
+      if (!listas[user]) return;
+      listas[user] = listas[user].filter(item =>
+        !(item.tipo === tipo && item.titulo === titulo)
+      );
+      localStorage.setItem('listas', JSON.stringify(listas));
+      renderSeccion(getSeccionActiva(), usuarioPerfilActual);
+    };
+  });
 }
 
 // ================== EVENTOS PRINCIPALES ==================
@@ -524,4 +573,25 @@ document.addEventListener('DOMContentLoaded', () => {
     actoresSerieTMDB = [];
     ultimoLibroOL = null;
   };
+
+  // Evento para eliminar tarjetas
+  document.querySelectorAll('.eliminar-btn').forEach(btn => {
+    btn.onclick = function() {
+      if (!confirm("¿Seguro que quieres eliminar este elemento de tu catálogo?")) return;
+      const tipo = btn.dataset.tipo;
+      const titulo = btn.dataset.titulo;
+      const user = usuarioPerfilActual;
+      let listas = JSON.parse(localStorage.getItem('listas') || '{}');
+      if (!listas[user]) return;
+      listas[user] = listas[user].filter(item =>
+        !(item.tipo === tipo && item.titulo === titulo)
+      );
+      localStorage.setItem('listas', JSON.stringify(listas));
+      renderSeccion(getSeccionActiva(), usuarioPerfilActual);
+    };
+  });
+
+  document.getElementById('buscador').addEventListener('input', function() {
+    renderSeccion(getSeccionActiva(), usuarioPerfilActual);
+  });
 });

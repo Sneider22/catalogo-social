@@ -402,3 +402,20 @@ footer {
   from { transform: translateY(30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+.eliminar-btn {
+  float: right;
+  background: #be185d;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 2em;
+  height: 2em;
+  font-size: 1.1em;
+  cursor: pointer;
+  margin-left: 0.5em;
+  margin-bottom: 0.5em;
+  transition: background 0.2s;
+}
+.eliminar-btn:hover {
+  background: #831843;
+}
