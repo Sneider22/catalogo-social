@@ -105,40 +105,6 @@ function cargarGenerosTMDB() {
 }
 cargarGenerosTMDB();
 
-// ================== AUTOCOMPLETADO MUSICBRAINZ ==================
-const MUSICBRAINZ_API = "https://musicbrainz.org/ws/2";
-const COVERART_API = "https://coverartarchive.org/release-group/";
-
-let ultimoArtistaMB = null;
-
-function buscarArtistasMusicBrainz(query, callback) {
-  fetch(`${MUSICBRAINZ_API}/artist/?query=${encodeURIComponent(query)}&fmt=json&limit=8`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.artists) callback(data.artists);
-      else callback([]);
-    });
-}
-
-function obtenerImagenArtistaMB(artist, callback) {
-  // Busca la imagen usando el primer release-group del artista
-  if (!artist['release-groups'] || !artist['release-groups'].length) {
-    callback(null);
-    return;
-  }
-  const rgid = artist['release-groups'][0].id;
-  fetch(`${COVERART_API}${rgid}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.images && data.images.length > 0) {
-        callback(data.images[0].thumbnails?.large || data.images[0].image);
-      } else {
-        callback(null);
-      }
-    })
-    .catch(() => callback(null));
-}
-
 // ================== RENDERIZADO DE SECCIONES ==================
 function renderSeccion(seccion, usuario = usuarioPerfilActual) {
   const user = usuario;
@@ -152,15 +118,25 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
   document.querySelector('.serie-list').innerHTML = '';
   document.querySelector('.pelicula-list').innerHTML = '';
   document.querySelector('.libro-list').innerHTML = '';
-  document.querySelector('.musica-list').innerHTML = '';
 
   // Función para saber si un ítem coincide con el filtro
   function coincide(item) {
     if (!filtro) return true;
+    // Título
     if (item.titulo && item.titulo.toLowerCase().includes(filtro)) return true;
+    // Categoría/tipo
     if (item.tipo && item.tipo.toLowerCase().includes(filtro)) return true;
-    if (item.musica && item.musica.nacionalidad && item.musica.nacionalidad.toLowerCase().includes(filtro)) return true;
-    if (item.musica && item.musica.genero && item.musica.genero.toLowerCase().includes(filtro)) return true;
+    // Actores (para series y películas)
+    if (item.tmdb && item.tmdb.actores && item.tmdb.actores.join(" ").toLowerCase().includes(filtro)) return true;
+    // Autor (para libros)
+    if (item.ol && item.ol.author && item.ol.author.toLowerCase().includes(filtro)) return true;
+    // Géneros (para películas y series)
+    if (item.tmdb && item.tmdb.genre_ids && Array.isArray(item.tmdb.genre_ids)) {
+      for (let id of item.tmdb.genre_ids) {
+        const nombreGenero = (generosTMDB[id] || "").toLowerCase();
+        if (nombreGenero.includes(filtro)) return true;
+      }
+    }
     return false;
   }
 
@@ -257,23 +233,6 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         <div style="clear:both"></div>
       `;
       document.querySelector('.libro-list').appendChild(card);
-    });
-  }
-  if (seccion === "musica") {
-    userList.filter(item => item.tipo === "musica" && coincide(item)).forEach((musica, idx) => {
-      const div = document.createElement('div');
-      div.className = 'musica-card';
-      div.innerHTML = `
-        <img src="${musica.musica.imagen || 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg'}" alt="Foto">
-        <div class="musica-info">
-          <h3>${musica.titulo}</h3>
-          <p><b>Nacionalidad:</b> ${musica.musica.nacionalidad || 'Desconocida'}</p>
-          <p><b>Género:</b> <span class="musica-genero">${musica.musica.genero || 'Desconocido'}</span></p>
-          <p><b>Año de inicio:</b> ${musica.musica.anio || 'Desconocido'}</p>
-        </div>
-        <button class="eliminar-btn" data-idx="${idx}" title="Eliminar">🗑️</button>
-      `;
-      document.querySelector('.musica-list').appendChild(div);
     });
   }
 
