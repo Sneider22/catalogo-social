@@ -37,6 +37,7 @@
         <option value="serie">Serie/Anime</option>
         <option value="libro">Libro</option>
         <option value="pelicula">Película</option>
+        <option value="musica">Cantante o Banda</option> <!-- NUEVA OPCIÓN -->
       </select>
       <label>Título</label>
       <input type="text" id="titulo-item" required placeholder="Título">
@@ -69,6 +70,7 @@
         <li class="activo" data-section="series">Series/Animes</li>
         <li data-section="peliculas">Películas</li>
         <li data-section="libros">Libros</li>
+        <li data-section="musica">Cantantes y Bandas</li> <!-- NUEVA SECCIÓN -->
       </ul>
     </nav>
   </header>
@@ -87,6 +89,10 @@
     <section id="libros" class="catalogo">
       <h2>Libros</h2>
       <div class="libro-list"></div>
+    </section>
+    <section id="musica" class="catalogo">
+      <h2>Cantantes y Bandas</h2>
+      <div class="musica-list"></div>
     </section>
   </main>
   <footer>
