@@ -88,6 +88,9 @@ function calcularCoincidencia(userA, userB) {
 
 // ================== AGREGAR ELEMENTOS ==================
 const addBtn = document.getElementById('add-item-btn');
+if (addBtn) {
+  addBtn.style.display = (usuarioPerfilActual === usuarioActual()) ? 'block' : 'none';
+}
 const addModal = document.getElementById('add-modal');
 const addForm = document.getElementById('add-form');
 const tipoItem = document.getElementById('tipo-item');
@@ -151,6 +154,9 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
     return false;
   }
 
+  const puedeEliminar = usuarioPerfilActual === usuarioActual();
+
+  // SERIES
   if (seccion === "series") {
     userList.filter(item => item.tipo === "serie" && coincide(item)).forEach((serie, idx) => {
       const card = document.createElement('div');
@@ -176,7 +182,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         ? `<p><b>Actores:</b> ${serie.tmdb.actores.join(", ")}</p>`
         : "";
       card.innerHTML = `
-        <button class="eliminar-btn" data-tipo="serie" data-titulo="${serie.titulo}" title="Eliminar">🗑️</button>
+        ${puedeEliminar ? `<button class="eliminar-btn" data-tipo="serie" data-titulo="${serie.titulo}" title="Eliminar">🗑️</button>` : ""}
         ${poster}
         <h3>${serie.titulo || (serie.tmdb && serie.tmdb.name) || ""}${year}</h3>
         ${generos ? `<div style="margin-bottom:0.3em;">${generos}</div>` : ""}
@@ -187,6 +193,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
       document.querySelector('.serie-list').appendChild(card);
     });
   }
+  // PELÍCULAS
   if (seccion === "peliculas") {
     userList.filter(item => item.tipo === "pelicula" && coincide(item)).forEach((pelicula, idx) => {
       const card = document.createElement('div');
@@ -212,7 +219,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         ? `<p><b>Actores:</b> ${pelicula.tmdb.actores.join(", ")}</p>`
         : "";
       card.innerHTML = `
-        <button class="eliminar-btn" data-tipo="pelicula" data-titulo="${pelicula.titulo}" title="Eliminar">🗑️</button>
+        ${puedeEliminar ? `<button class="eliminar-btn" data-tipo="pelicula" data-titulo="${pelicula.titulo}" title="Eliminar">🗑️</button>` : ""}
         ${poster}
         <h3>${pelicula.titulo}${year}</h3>
         ${generos ? `<div style="margin-bottom:0.3em;">${generos}</div>` : ""}
@@ -223,6 +230,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
       document.querySelector('.pelicula-list').appendChild(card);
     });
   }
+  // LIBROS
   if (seccion === "libros") {
     userList.filter(item => item.tipo === "libro" && coincide(item)).forEach((libro, idx) => {
       const card = document.createElement('div');
@@ -237,7 +245,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
         ? ` (${libro.ol.year})`
         : "";
       card.innerHTML = `
-        <button class="eliminar-btn" data-tipo="libro" data-titulo="${libro.titulo}" title="Eliminar">🗑️</button>
+        ${puedeEliminar ? `<button class="eliminar-btn" data-tipo="libro" data-titulo="${libro.titulo}" title="Eliminar">🗑️</button>` : ""}
         ${portada}
         <h3>${libro.titulo}${year}</h3>
         ${autor}
@@ -251,6 +259,7 @@ function renderSeccion(seccion, usuario = usuarioPerfilActual) {
 }
 
 function asignarEventosEliminar() {
+  if (usuarioPerfilActual !== usuarioActual()) return;
   document.querySelectorAll('.eliminar-btn').forEach(btn => {
     btn.onclick = function() {
       if (!confirm("¿Seguro que quieres eliminar este elemento de tu catálogo?")) return;
