@@ -419,3 +419,35 @@ footer {
 .eliminar-btn:hover {
   background: #831843;
 }
+.perfil-header {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+.perfil-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #a78bfa;
+  background: #ede9fe;
+  object-fit: cover;
+}
+.avatar-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  margin-top: 0.2em;
+}
+.avatar-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border 0.2s, transform 0.2s;
+  object-fit: cover;
+}
+.avatar-option:hover, .avatar-option.selected {
+  border: 2px solid #a78bfa;
+  transform: scale(1.1);
+}

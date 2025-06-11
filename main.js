@@ -38,6 +38,7 @@ const perfilUsuario = document.getElementById('perfil-usuario');
 const usuarioSelector = document.getElementById('usuario-selector');
 const coincidenciaGustos = document.getElementById('coincidencia-gustos');
 const verMiPerfilBtn = document.getElementById('ver-mi-perfil');
+const perfilAvatar = document.getElementById('perfil-avatar');
 let usuarioPerfilActual = usuarioActual();
 
 function cargarUsuariosSelector() {
@@ -52,10 +53,20 @@ function cargarUsuariosSelector() {
   usuarioSelector.value = usuarioPerfilActual;
 }
 
+function cargarAvatar(usuario) {
+  const url = localStorage.getItem('avatar_' + usuario);
+  if (url) perfilAvatar.src = url;
+  else perfilAvatar.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(usuario);
+  document.querySelectorAll('.avatar-option').forEach(img => {
+    img.classList.toggle('selected', img.dataset.avatar === url && usuario === usuarioActual());
+  });
+}
+
 function mostrarPerfil(usuario) {
   usuarioPerfilActual = usuario;
   perfilUsuario.textContent = usuario;
   cargarUsuariosSelector();
+  cargarAvatar(usuario);
   verMiPerfilBtn.style.display = usuario !== usuarioActual() ? 'inline-block' : 'none';
   renderSeccion(getSeccionActiva(), usuario);
   if (usuario !== usuarioActual()) {
@@ -594,4 +605,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('buscador').addEventListener('input', function() {
     renderSeccion(getSeccionActiva(), usuarioPerfilActual);
   });
+
+  // Selector de avatar: solo permite cambiar el avatar del usuario activo
+  const avatarSelector = document.getElementById('avatar-selector');
+  if (avatarSelector) {
+    avatarSelector.addEventListener('click', function(e) {
+      // Solo permite cambiar si es tu propio perfil
+      if (usuarioPerfilActual !== usuarioActual()) return;
+      if (e.target.classList.contains('avatar-option')) {
+        const url = e.target.dataset.avatar;
+        perfilAvatar.src = url;
+        localStorage.setItem('avatar_' + usuarioActual(), url);
+        document.querySelectorAll('.avatar-option').forEach(img => {
+          img.classList.toggle('selected', img === e.target);
+        });
+      }
+    });
+  }
 });

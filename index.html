@@ -52,13 +52,27 @@
   <!-- Perfil y comparación -->
   <div id="perfil-container" class="perfil-container">
     <div class="perfil-info">
-      <h3>Perfil de <span id="perfil-usuario"></span></h3>
+      <div class="perfil-header">
+        <img id="perfil-avatar" src="https://ui-avatars.com/api/?name=User" alt="Avatar" class="perfil-avatar">
+        <div>
+          <h3>Perfil de <span id="perfil-usuario"></span></h3>
+          <span id="coincidencia-gustos"></span>
+          <div id="barra-coincidencia" class="barra-coincidencia"></div>
+          <div class="avatar-selector" id="avatar-selector" style="margin-top:0.5em;">
+            <span style="font-size:0.9em;color:#a78bfa;">Cambiar avatar:</span>
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=cat" class="avatar-option" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=cat" title="Avatar 1">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=dog" class="avatar-option" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=dog" title="Avatar 2">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=fox" class="avatar-option" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=fox" title="Avatar 3">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=owl" class="avatar-option" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=owl" title="Avatar 4">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=alien" class="avatar-option" data-avatar="https://api.dicebear.com/7.x/bottts/svg?seed=alien" title="Avatar 5">
+          </div>
+        </div>
+      </div>
       <button id="ver-mi-perfil" style="display:none;">Ver mi perfil</button>
-    </div>
-    <div class="perfil-selector">
-      <label for="usuario-selector">Ver perfil de:</label>
-      <select id="usuario-selector"></select>
-      <span id="coincidencia-gustos"></span>
+      <div class="perfil-selector">
+        <label for="usuario-selector">Ver perfil de:</label>
+        <select id="usuario-selector"></select>
+      </div>
     </div>
   </div>
 
