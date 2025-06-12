@@ -1,10 +1,10 @@
-# mi_lista
+# 🎬📚 mi_lista
 
-## ¿Qué es?
+## ❓ ¿Qué es?
 
 **mi_lista** es una aplicación web donde puedes crear, organizar y compartir tus listas personales de series/animes, películas y libros. Cada usuario puede tener su propio catálogo, ver el de otros usuarios y comparar gustos.
 
-## ¿Cómo funciona?
+## ⚙️ ¿Cómo funciona?
 
 - Regístrate e inicia sesión con tu usuario.
 - Agrega series, películas o libros a tu lista personal.
@@ -12,7 +12,7 @@
 - Puedes ver y comparar listas de otros usuarios.
 - Cambia tu avatar y elimina elementos de tu lista cuando quieras.
 
-## Estructura del proyecto
+## 🗂️ Estructura del proyecto
 
 ```
 mi_lista/
@@ -23,7 +23,7 @@ mi_lista/
 └── README.md       # Documentación del proyecto
 ```
 
-## ¿Cómo usarlo?
+## 🚀 ¿Cómo usarlo?
 
 1. Abre `index.html` en tu navegador.
 2. Regístrate con un usuario y contraseña.
@@ -34,7 +34,7 @@ mi_lista/
 7. Puedes ver y comparar listas de otros usuarios desde el perfil.
 8. Cambia tu avatar desde tu perfil si lo deseas.
 
-## Notas
+## 📝 Notas
 
 - Todos los datos se guardan en tu navegador (localStorage), no hay base de datos externa.
 - El autocompletado usa las APIs públicas de TMDB y OpenLibrary.
